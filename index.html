@@ -1,189 +1,669 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="ru">
 <head>
-<style>
-    body {
-        margin: 0;
-        padding: 0;
-        background-image: url('background.jpg'); /* Проверьте название картинки */
-        background-size: cover;
-        background-position: center;
-        width: 100vw;
-        height: 100vh;
-        font-family: Arial, sans-serif;
-        overflow: hidden;
-        
-        /* ===== ЗАПРЕТ ВЫДЕЛЕНИЯ ТЕКСТА ===== */
-        user-select: none;
-        -webkit-user-select: none;
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>CloudRP — подключение</title>
+  <style>
+    :root {
+      --accent: #168cff;
+      --accent-soft: #61c9ff;
+      --text: #f5f9ff;
+      --muted: #9babc0;
+      --surface: rgba(5, 12, 22, .86);
+      --surface-light: rgba(19, 34, 52, .72);
+      --border: rgba(141, 203, 255, .17);
+      --shadow: 0 24px 80px rgba(0, 0, 0, .56);
     }
 
-    /* Блок с полосой загрузки */
-    .load-container {
-        position: absolute;
-        bottom: 90px; 
-        left: 50%;
-        transform: translateX(-50%);
-        width: 60%;
-        text-align: center;
-        z-index: 100;
+    * { box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: #02060c;
+      color: var(--text);
+      font-family: "Segoe UI Variable", "Segoe UI", Arial, sans-serif;
     }
 
-    .load-title {
-        color: #4da6ff;
-        font-size: 20px;
-        text-align: left;
-        margin-bottom: 5px;
-        text-shadow: 0 0 5px #007bff;
-        letter-spacing: 1px;
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background:
+        linear-gradient(180deg, rgba(2, 7, 13, .05) 0%, rgba(2, 7, 13, .02) 52%, rgba(2, 7, 13, .64) 100%),
+        url("background.jpg") center center / cover no-repeat;
+      transform: scale(1.012);
+      animation: background-drift 18s ease-in-out infinite alternate;
     }
 
-    /* Обертка */
-    .progress-wrapper {
-        position: relative;
-        width: 100%;
-        height: 8px;
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background: radial-gradient(circle at 50% 43%, transparent 32%, rgba(0, 4, 10, .36) 100%);
     }
 
-    /* Полоса */
-    .progress-bar {
-        width: 100%;
-        height: 100%;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 4px;
-        overflow: hidden;
+    #rain {
+      position: fixed;
+      inset: 0;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      opacity: .48;
     }
 
-    /* Заполнение */
-    .progress-fill {
-        height: 100%;
-        width: 0%;
-        background: linear-gradient(90deg, #007bff, #00d4ff);
-        box-shadow: 0 0 10px #007bff;
-        border-radius: 4px;
-        transition: width 0.3s ease-in-out;
+    .discord-link {
+      position: fixed;
+      top: clamp(46px, 7vh, 76px);
+      left: 0;
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      gap: clamp(13px, 1vw, 18px);
+      width: clamp(322px, 20.4vw, 400px);
+      height: clamp(58px, 7.8vh, 84px);
+      padding: 8px 18px;
+      color: #eef5ff;
+      background: rgba(4, 10, 18, .98);
+      border: 1px solid rgba(132, 172, 255, .14);
+      border-left: 0;
+      border-radius: 0 13px 13px 0;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, .34);
+      font-size: clamp(14px, 1.04vw, 20px);
+      font-weight: 650;
+      line-height: 1;
+      text-decoration: none;
+      transition: border-color .2s ease, background .2s ease, transform .2s ease;
     }
 
-    /* Проценты справа */
-    .percent-text {
-        position: absolute;
-        left: 100%;
-        margin-left: 20px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #4da6ff;
-        font-size: 22px;
-        font-weight: bold;
-        text-shadow: 0 0 5px #007bff;
-        white-space: nowrap;
+    .discord-link:hover {
+      background: rgba(13, 25, 42, .96);
+      border-color: rgba(122, 147, 255, .45);
+      transform: translateY(-1px);
     }
-</style>
+
+    .discord-icon {
+      display: grid;
+      place-items: center;
+      width: clamp(43px, 3.25vw, 62px);
+      height: clamp(43px, 3.25vw, 62px);
+      flex: 0 0 auto;
+      color: #fff;
+      background: linear-gradient(145deg, #7588ff, #5367e9);
+      border-radius: 9px;
+      box-shadow: 0 7px 18px rgba(88, 101, 242, .3);
+    }
+
+    .discord-icon svg { width: 58%; height: 58%; }
+
+    .audio-button {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      z-index: 5;
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      padding: 0;
+      color: #dcecff;
+      background: rgba(4, 12, 22, .72);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 10px 34px rgba(0, 0, 0, .3);
+      cursor: pointer;
+      transition: color .2s ease, background .2s ease, transform .2s ease, border-color .2s ease;
+    }
+
+    .audio-button:hover {
+      color: #fff;
+      background: rgba(17, 39, 61, .88);
+      border-color: rgba(97, 201, 255, .48);
+      transform: translateY(-1px);
+    }
+
+    .audio-button:focus-visible {
+      outline: 2px solid var(--accent-soft);
+      outline-offset: 3px;
+    }
+
+    .audio-button svg { width: 20px; height: 20px; }
+    .audio-button .icon-off { display: none; }
+    .audio-button.is-muted .icon-on { display: none; }
+    .audio-button.is-muted .icon-off { display: block; }
+
+    .loading-shell {
+      position: fixed;
+      left: 50%;
+      bottom: clamp(14px, 2.8vh, 30px);
+      z-index: 4;
+      width: min(920px, calc(100vw - 40px));
+      transform: translateX(-50%);
+    }
+
+    .loading-card {
+      position: relative;
+      overflow: hidden;
+      padding: 18px 20px 16px;
+      background: linear-gradient(135deg, rgba(7, 17, 29, .91), rgba(5, 12, 22, .83));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, .035);
+      backdrop-filter: blur(15px);
+    }
+
+    .loading-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 20px;
+      right: 20px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(73, 181, 255, .8), transparent);
+    }
+
+    .loading-card::after {
+      content: "";
+      position: absolute;
+      width: 250px;
+      height: 250px;
+      right: -110px;
+      top: -170px;
+      border-radius: 50%;
+      background: rgba(22, 140, 255, .17);
+      filter: blur(36px);
+      pointer-events: none;
+    }
+
+    .status-row {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 12px;
+    }
+
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+      color: var(--accent-soft);
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .pulse {
+      position: relative;
+      width: 7px;
+      height: 7px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: #42b6ff;
+      box-shadow: 0 0 13px rgba(66, 182, 255, .9);
+    }
+
+    .pulse::after {
+      content: "";
+      position: absolute;
+      inset: -4px;
+      border: 1px solid rgba(66, 182, 255, .42);
+      border-radius: inherit;
+      animation: pulse 1.8s ease-out infinite;
+    }
+
+    #status-text {
+      max-width: 710px;
+      overflow: hidden;
+      color: var(--text);
+      font-size: clamp(17px, 1.55vw, 21px);
+      font-weight: 650;
+      line-height: 1.2;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    #progress-percent {
+      flex: 0 0 auto;
+      margin-top: 1px;
+      color: #fff;
+      font-size: 30px;
+      font-variant-numeric: tabular-nums;
+      font-weight: 720;
+      line-height: 1;
+      letter-spacing: -.04em;
+      text-shadow: 0 0 24px rgba(39, 160, 255, .35);
+    }
+
+    .progress-track {
+      position: relative;
+      z-index: 1;
+      height: 5px;
+      overflow: hidden;
+      background: rgba(129, 162, 196, .15);
+      border-radius: 999px;
+    }
+
+    #progress-fill {
+      position: relative;
+      width: 0%;
+      height: 100%;
+      overflow: hidden;
+      background: linear-gradient(90deg, #0879e8, #32b6ff 68%, #8bddff);
+      border-radius: inherit;
+      box-shadow: 0 0 16px rgba(36, 165, 255, .6);
+      transition: width .45s cubic-bezier(.2, .8, .2, 1);
+    }
+
+    #progress-fill::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      width: 45%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .7), transparent);
+      transform: translateX(-120%);
+      animation: shimmer 1.9s ease-in-out infinite;
+    }
+
+    .details-row {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1.55fr) minmax(0, .8fr) minmax(0, .85fr);
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .detail {
+      min-width: 0;
+      padding-right: 12px;
+      border-right: 1px solid rgba(151, 197, 236, .12);
+    }
+
+    .detail:last-child { padding-right: 0; border-right: 0; }
+
+    .detail-label {
+      display: block;
+      margin-bottom: 2px;
+      color: #75879c;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .detail-value {
+      display: block;
+      overflow: hidden;
+      color: #cad7e5;
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+      font-weight: 550;
+      line-height: 1.35;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    #current-file { direction: rtl; text-align: left; }
+
+    .tip {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      min-height: 19px;
+      margin-top: 9px;
+      color: rgba(190, 207, 225, .74);
+      font-size: 11px;
+      line-height: 1.35;
+      text-align: center;
+      transition: opacity .25s ease, transform .25s ease;
+    }
+
+    .tip.is-changing { opacity: 0; transform: translateY(3px); }
+    .tip strong { color: #75caff; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+
+    @keyframes background-drift {
+      from { transform: scale(1.012) translate3d(-2px, 0, 0); }
+      to { transform: scale(1.025) translate3d(3px, -2px, 0); }
+    }
+
+    @keyframes pulse {
+      0% { opacity: .85; transform: scale(.6); }
+      75%, 100% { opacity: 0; transform: scale(1.55); }
+    }
+
+    @keyframes shimmer {
+      45%, 100% { transform: translateX(270%); }
+    }
+
+    @media (max-width: 700px) {
+      .discord-link { top: 14px; left: 14px; min-width: auto; height: 38px; padding: 5px 10px 5px 5px; font-size: 11px; }
+      .discord-icon { width: 28px; height: 28px; border-radius: 7px; }
+      .discord-icon svg { width: 17px; height: 17px; }
+      .audio-button { top: 14px; right: 14px; width: 38px; height: 38px; }
+      .loading-shell { width: calc(100vw - 24px); bottom: 12px; }
+      .loading-card { padding: 15px 16px 13px; border-radius: 15px; }
+      .status-row { gap: 12px; margin-bottom: 10px; }
+      #progress-percent { font-size: 26px; }
+      .details-row { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); }
+      .detail:nth-child(2) { border-right: 0; padding-right: 0; }
+      .detail:nth-child(3) { display: none; }
+      .tip { font-size: 10px; }
+    }
+
+    @media (max-height: 680px) {
+      .loading-card { padding-top: 14px; padding-bottom: 12px; }
+      .tip { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+      }
+      #progress-fill { transition: none; }
+      #rain { display: none; }
+    }
+  </style>
 </head>
 <body>
+  <canvas id="rain" aria-hidden="true"></canvas>
 
-    <!-- Слой дождя -->
-    <canvas id="rain-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5;"></canvas>
+  <a class="discord-link" href="https://discord.gg/2sbUQmCps" target="_blank" rel="noopener">
+    <span class="discord-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.5 5.34A16.3 16.3 0 0 0 15.44 4l-.5 1.02a15.25 15.25 0 0 0-5.88 0L8.54 4A16.5 16.5 0 0 0 4.5 5.35C1.94 9.17 1.25 12.9 1.6 16.58a16.47 16.47 0 0 0 4.97 2.51l1.2-1.65a10.66 10.66 0 0 1-1.88-.9l.46-.35c3.62 1.68 7.55 1.68 11.13 0l.47.35c-.6.36-1.23.66-1.88.9l1.2 1.65a16.4 16.4 0 0 0 4.97-2.51c.42-4.26-.72-7.95-2.74-11.24ZM8.68 14.32c-1.09 0-1.98-1-1.98-2.22 0-1.23.87-2.23 1.98-2.23 1.12 0 2 1.01 1.98 2.23 0 1.23-.88 2.22-1.98 2.22Zm6.64 0c-1.09 0-1.98-1-1.98-2.22 0-1.23.87-2.23 1.98-2.23 1.12 0 2 1.01 1.98 2.23 0 1.23-.86 2.22-1.98 2.22Z"/></svg>
+    </span>
+    <span>discord.gg/2sbUQmCps</span>
+  </a>
 
-    <!-- Интерфейс загрузки -->
-    <div class="load-container">
-        <div class="load-title">ЗАГРУЗКА СЕРВЕРА</div>
-        <div class="progress-wrapper">
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressBar"></div>
-            </div>
-            <div class="percent-text" id="percentText">0%</div>
+  <button class="audio-button" id="audio-button" type="button" aria-label="Выключить музыку" title="Музыка">
+    <svg class="icon-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18 6a8.5 8.5 0 0 1 0 12"/>
+    </svg>
+    <svg class="icon-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="m16 9 5 5"/><path d="m21 9-5 5"/>
+    </svg>
+  </button>
+
+  <main class="loading-shell" aria-live="polite">
+    <section class="loading-card">
+      <div class="status-row">
+        <div>
+          <div class="eyebrow"><span class="pulse"></span><span id="server-name">CloudRP</span></div>
+          <div id="status-text">Ожидание подключения к серверу…</div>
         </div>
-    </div>
+        <div id="progress-percent">0%</div>
+      </div>
 
-    <!-- Музыка -->
-    <audio id="bg-music" loop preload="auto">
-        <source src="music.mp3" type="audio/mpeg">
-    </audio>
+      <div class="progress-track" role="progressbar" aria-label="Загрузка" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div id="progress-fill"></div>
+      </div>
 
-    <script>
-        // ================== ТОЛЬКО ДОЖДЬ ==================
-        const canvas = document.getElementById('rain-canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+      <div class="details-row">
+        <div class="detail">
+          <span class="detail-label">Загружается</span>
+          <span class="detail-value" id="current-file">Подготовка игровых файлов</span>
+        </div>
+        <div class="detail">
+          <span class="detail-label">Карта</span>
+          <span class="detail-value" id="map-name">Ожидание…</span>
+        </div>
+        <div class="detail">
+          <span class="detail-label">Режим · файлы</span>
+          <span class="detail-value"><span id="game-mode">Z-City RP</span> · <span id="file-count">0 / 0</span></span>
+        </div>
+      </div>
 
-        let raindrops = [];
-        const RAIN_COUNT = 150;
+      <div class="tip" id="tip"><strong>Совет</strong><span id="tip-text">Знакомьтесь с персонажами — до представления их имя скрыто.</span></div>
+    </section>
+  </main>
 
-        class Drop {
-            constructor() { this.reset(); }
-            reset() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.len = Math.random() * 20 + 10;
-                this.speed = Math.random() * 5 + 10;
-                this.opacity = Math.random() * 0.5 + 0.2;
-            }
-            update() {
-                this.y += this.speed;
-                this.x -= this.speed * 0.3;
-                if (this.y > canvas.height || this.x < 0) {
-                    this.reset();
-                    this.y = 0;
-                }
-            }
-            draw() {
-                ctx.strokeStyle = `rgba(174, 194, 224, ${this.opacity})`;
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.moveTo(this.x, this.y);
-                ctx.lineTo(this.x - this.len * 0.3, this.y + this.len);
-                ctx.stroke();
-            }
+  <audio id="music" src="music.mp3" preload="auto" loop></audio>
+
+  <script>
+    (function () {
+      "use strict";
+
+      var state = {
+        total: 0,
+        needed: 0,
+        percent: 0,
+        volume: 0.25,
+        muted: false,
+        detailsReceived: false
+      };
+
+      var elements = {
+        server: document.getElementById("server-name"),
+        status: document.getElementById("status-text"),
+        percent: document.getElementById("progress-percent"),
+        fill: document.getElementById("progress-fill"),
+        track: document.querySelector(".progress-track"),
+        file: document.getElementById("current-file"),
+        map: document.getElementById("map-name"),
+        mode: document.getElementById("game-mode"),
+        count: document.getElementById("file-count"),
+        tip: document.getElementById("tip"),
+        tipText: document.getElementById("tip-text"),
+        audio: document.getElementById("music"),
+        audioButton: document.getElementById("audio-button")
+      };
+
+      var tips = [
+        "Знакомьтесь с персонажами — до представления их имя скрыто.",
+        "Оружие без лицензии считается запрещённым. Полиция может провести обыск.",
+        "Используйте C-меню для RP-действий, лицензий и покупки патронов.",
+        "После смерти профессия мэра снимается автоматически.",
+        "Говорите по ситуации: мёртвые персонажи не могут общаться с живыми.",
+        "Сообщить важную RP-новость всему городу можно командой /advert.",
+        "Нарушение правил можно отправить администрации через C-меню."
+      ];
+      var tipIndex = 0;
+
+      var statusTranslations = [
+        [/retrieving server info/i, "Получаем информацию о сервере…"],
+        [/sending client info/i, "Отправляем данные игрока…"],
+        [/receiving client info/i, "Получаем данные игрока…"],
+        [/connecting to server/i, "Подключаемся к серверу…"],
+        [/connected to server/i, "Соединение установлено"],
+        [/downloading/i, "Загружаем серверные файлы…"],
+        [/extracting/i, "Распаковываем игровые файлы…"],
+        [/workshop complete/i, "Контент мастерской загружен"],
+        [/starting lua/i, "Запускаем игровые системы…"],
+        [/client info sent/i, "Данные игрока отправлены"],
+        [/mounting/i, "Подключаем контент…"],
+        [/loading resources/i, "Загружаем ресурсы…"],
+        [/parsing game info/i, "Подготавливаем игровой режим…"],
+        [/fully connected/i, "Готово. Добро пожаловать в CloudRP!"],
+        [/connection failed/i, "Не удалось подключиться к серверу"],
+        [/authenticating/i, "Проверяем Steam-аккаунт…"]
+      ];
+
+      function clamp(value, min, max) {
+        return Math.min(max, Math.max(min, value));
+      }
+
+      function cleanText(value, fallback) {
+        var text = String(value == null ? "" : value).trim();
+        return text || fallback;
+      }
+
+      function translateStatus(status) {
+        var raw = cleanText(status, "Подключаемся к серверу…");
+        for (var i = 0; i < statusTranslations.length; i += 1) {
+          if (statusTranslations[i][0].test(raw)) return statusTranslations[i][1];
         }
+        return raw;
+      }
 
-        for (let i = 0; i < RAIN_COUNT; i++) {
-            raindrops.push(new Drop());
+      function updateProgress(value) {
+        var numeric = Number(value);
+        if (!isFinite(numeric)) return;
+        if (numeric >= 0 && numeric <= 1) numeric *= 100;
+        state.percent = clamp(numeric, 0, 100);
+        var rounded = Math.round(state.percent);
+        elements.percent.textContent = rounded + "%";
+        elements.fill.style.width = state.percent.toFixed(2) + "%";
+        elements.track.setAttribute("aria-valuenow", String(rounded));
+      }
+
+      function updateFileCount() {
+        var completed = Math.max(0, state.total - state.needed);
+        elements.count.textContent = completed + " / " + state.total;
+        if (state.total > 0) updateProgress((completed / state.total) * 100);
+      }
+
+      function setAudioVolume(volume) {
+        var numeric = Number(volume);
+        if (!isFinite(numeric)) numeric = 0.25;
+        state.volume = clamp(numeric, 0, 1);
+        elements.audio.volume = state.volume;
+        state.muted = state.volume <= 0;
+        renderAudioButton();
+        if (!state.muted) {
+          var playAttempt = elements.audio.play();
+          if (playAttempt && playAttempt.catch) playAttempt.catch(function () {});
         }
+      }
 
-        function animateRain() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            raindrops.forEach(drop => {
-                drop.update();
-                drop.draw();
+      function renderAudioButton() {
+        elements.audio.muted = state.muted;
+        elements.audioButton.classList.toggle("is-muted", state.muted);
+        elements.audioButton.setAttribute("aria-label", state.muted ? "Включить музыку" : "Выключить музыку");
+      }
+
+      elements.audioButton.addEventListener("click", function () {
+        state.muted = !state.muted;
+        renderAudioButton();
+        if (!state.muted) {
+          var playAttempt = elements.audio.play();
+          if (playAttempt && playAttempt.catch) playAttempt.catch(function () {});
+        }
+      });
+
+      window.GameDetails = function (serverName, serverURL, mapName, maxPlayers, steamID, gameMode, volume) {
+        state.detailsReceived = true;
+        elements.server.textContent = cleanText(serverName, "CloudRP");
+        elements.map.textContent = cleanText(mapName, "Неизвестная карта");
+        elements.mode.textContent = cleanText(gameMode, "Z-City RP");
+        setAudioVolume(volume);
+      };
+
+      window.SetFilesTotal = function (total) {
+        state.total = Math.max(0, Math.floor(Number(total) || 0));
+        updateFileCount();
+      };
+
+      window.SetFilesNeeded = function (needed) {
+        state.needed = Math.max(0, Math.floor(Number(needed) || 0));
+        updateFileCount();
+      };
+
+      window.DownloadingFile = function (fileName) {
+        var file = cleanText(fileName, "Серверные файлы").replace(/[\\/]+/g, " › ");
+        elements.file.textContent = "\u202A" + file + "\u202C";
+        elements.status.textContent = "Загружаем контент сервера…";
+      };
+
+      window.SetStatusChanged = function (status) {
+        elements.status.textContent = translateStatus(status);
+      };
+
+      window.LoadingProgressChanged = function (progress) {
+        updateProgress(progress);
+      };
+
+      window.setInterval(function () {
+        tipIndex = (tipIndex + 1) % tips.length;
+        elements.tip.classList.add("is-changing");
+        window.setTimeout(function () {
+          elements.tipText.textContent = tips[tipIndex];
+          elements.tip.classList.remove("is-changing");
+        }, 250);
+      }, 6000);
+
+      function setupRain() {
+        if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        var canvas = document.getElementById("rain");
+        var context = canvas.getContext("2d");
+        var drops = [];
+        var width = 0;
+        var height = 0;
+        var dpr = 1;
+
+        function resize() {
+          width = window.innerWidth;
+          height = window.innerHeight;
+          dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+          canvas.width = Math.floor(width * dpr);
+          canvas.height = Math.floor(height * dpr);
+          canvas.style.width = width + "px";
+          canvas.style.height = height + "px";
+          context.setTransform(dpr, 0, 0, dpr, 0, 0);
+          drops = [];
+          var amount = Math.max(42, Math.min(105, Math.floor(width / 15)));
+          for (var i = 0; i < amount; i += 1) {
+            drops.push({
+              x: Math.random() * width,
+              y: Math.random() * height,
+              length: 8 + Math.random() * 22,
+              speed: 7 + Math.random() * 10,
+              alpha: .06 + Math.random() * .2
             });
-            requestAnimationFrame(animateRain);
+          }
         }
 
-        animateRain();
-
-        // ================== ЛОГИКА GARRY'S MOD (РЕАЛЬНАЯ ЗАГРУЗКА) ==================
-        // Эти функции вызывает сам Garry's Mod.
-        
-        window.LoadingProgressChanged = function(progress) {
-            // progress приходит от 0 до 1 (например, 0.5)
-            var percent = Math.round(progress * 100);
-            document.getElementById('progressBar').style.width = percent + '%';
-            document.getElementById('percentText').innerText = percent + '%';
-        };
-
-        window.SetStatusChanged = function(status) {
-            console.log(status);
-        };
-
-        // ================== ЛОГИКА МУЗЫКИ ==================
-        var audio = document.getElementById('bg-music');
-
-        // Запускаем музыку при первом клике или нажатии клавиши
-        document.addEventListener('click', function() {
-            audio.play();
-        });
-        document.addEventListener('keydown', function() {
-            audio.play();
-        });
-
-        // Кнопка 'M' для выключения/включения звука
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'm') {
-                audio.muted = !audio.muted;
+        function draw() {
+          context.clearRect(0, 0, width, height);
+          context.lineWidth = .75;
+          for (var i = 0; i < drops.length; i += 1) {
+            var drop = drops[i];
+            context.beginPath();
+            context.strokeStyle = "rgba(154, 211, 255," + drop.alpha + ")";
+            context.moveTo(drop.x, drop.y);
+            context.lineTo(drop.x - 3, drop.y + drop.length);
+            context.stroke();
+            drop.x -= .65;
+            drop.y += drop.speed;
+            if (drop.y > height + drop.length) {
+              drop.x = Math.random() * width + 25;
+              drop.y = -drop.length;
             }
-        });
-    </script>
+          }
+          window.requestAnimationFrame(draw);
+        }
 
+        resize();
+        window.addEventListener("resize", resize);
+        draw();
+      }
+
+      setupRain();
+      setAudioVolume(.22);
+
+      if (/[?&]demo=1(?:&|$)/.test(window.location.search)) {
+        window.GameDetails("CloudRP | Русский Persistent RP", "", "rp_rusclaw_citygrad", 64, "", "Z-City RP", .18, "ru");
+        window.SetFilesTotal(184);
+        window.SetFilesNeeded(61);
+        window.DownloadingFile("materials/cloudrp/interface/player_status.png");
+        window.SetStatusChanged("Downloading materials");
+      }
+    }());
+  </script>
 </body>
 </html>
