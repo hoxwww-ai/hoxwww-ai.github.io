@@ -391,15 +391,6 @@
     <span>discord.gg/2sbUQmCps</span>
   </a>
 
-  <button class="audio-button" id="audio-button" type="button" aria-label="Выключить музыку" title="Музыка">
-    <svg class="icon-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18 6a8.5 8.5 0 0 1 0 12"/>
-    </svg>
-    <svg class="icon-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="m16 9 5 5"/><path d="m21 9-5 5"/>
-    </svg>
-  </button>
-
   <main class="loading-shell" aria-live="polite">
     <section class="loading-card">
       <div class="status-row">
@@ -433,7 +424,7 @@
     </section>
   </main>
 
-  <audio id="music" src="music.mp3" preload="auto" loop></audio>
+  <!-- Loading music is disabled for every player; no audio is loaded. -->
 
   <script>
     (function () {
@@ -443,8 +434,6 @@
         total: 0,
         needed: 0,
         percent: 0,
-        volume: 0.25,
-        muted: false,
         detailsReceived: false
       };
 
@@ -459,9 +448,7 @@
         mode: document.getElementById("game-mode"),
         count: document.getElementById("file-count"),
         tip: document.getElementById("tip"),
-        tipText: document.getElementById("tip-text"),
-        audio: document.getElementById("music"),
-        audioButton: document.getElementById("audio-button")
+        tipText: document.getElementById("tip-text")
       };
 
       var tips = [
@@ -528,40 +515,11 @@
         if (state.total > 0) updateProgress((completed / state.total) * 100);
       }
 
-      function setAudioVolume(volume) {
-        var numeric = Number(volume);
-        if (!isFinite(numeric)) numeric = 0.25;
-        state.volume = clamp(numeric, 0, 1);
-        elements.audio.volume = state.volume;
-        state.muted = state.volume <= 0;
-        renderAudioButton();
-        if (!state.muted) {
-          var playAttempt = elements.audio.play();
-          if (playAttempt && playAttempt.catch) playAttempt.catch(function () {});
-        }
-      }
-
-      function renderAudioButton() {
-        elements.audio.muted = state.muted;
-        elements.audioButton.classList.toggle("is-muted", state.muted);
-        elements.audioButton.setAttribute("aria-label", state.muted ? "Включить музыку" : "Выключить музыку");
-      }
-
-      elements.audioButton.addEventListener("click", function () {
-        state.muted = !state.muted;
-        renderAudioButton();
-        if (!state.muted) {
-          var playAttempt = elements.audio.play();
-          if (playAttempt && playAttempt.catch) playAttempt.catch(function () {});
-        }
-      });
-
       window.GameDetails = function (serverName, serverURL, mapName, maxPlayers, steamID, gameMode, volume) {
         state.detailsReceived = true;
         elements.server.textContent = cleanText(serverName, "CloudRP");
         elements.map.textContent = cleanText(mapName, "Неизвестная карта");
         elements.mode.textContent = cleanText(gameMode, "Z-City RP");
-        setAudioVolume(volume);
       };
 
       window.SetFilesTotal = function (total) {
@@ -654,7 +612,6 @@
       }
 
       setupRain();
-      setAudioVolume(.22);
 
       if (/[?&]demo=1(?:&|$)/.test(window.location.search)) {
         window.GameDetails("CLOUDRP | ZCITY ROLEPLAY | БЕТА-ОТКРЫТИЕ!", "", "rp_rusclaw_cloudrp", 55, "", "Z-City Roleplay", .18, "ru");
