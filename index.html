@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
-  <title>CloudRP — подключение</title>
+  <title>CLOUDRP | NETWORK — подключение</title>
   <style>
     :root {
       --accent: #168cff;
@@ -395,7 +395,7 @@
     <section class="loading-card">
       <div class="status-row">
         <div>
-          <div class="eyebrow"><span class="pulse"></span><span id="server-name">CloudRP</span></div>
+          <div class="eyebrow"><span class="pulse"></span><span id="server-name">CLOUDRP | NETWORK</span></div>
           <div id="status-text">Ожидание подключения к серверу…</div>
         </div>
         <div id="progress-percent">0%</div>
@@ -476,7 +476,7 @@
         [/mounting/i, "Подключаем контент…"],
         [/loading resources/i, "Загружаем ресурсы…"],
         [/parsing game info/i, "Подготавливаем игровой режим…"],
-        [/fully connected/i, "Готово. Добро пожаловать в CloudRP!"],
+        [/fully connected/i, "Готово. Добро пожаловать в CLOUDRP | NETWORK!"],
         [/connection failed/i, "Не удалось подключиться к серверу"],
         [/authenticating/i, "Проверяем Steam-аккаунт…"]
       ];
@@ -517,7 +517,7 @@
 
       window.GameDetails = function (serverName, serverURL, mapName, maxPlayers, steamID, gameMode, volume) {
         state.detailsReceived = true;
-        elements.server.textContent = cleanText(serverName, "CloudRP");
+        elements.server.textContent = cleanText(serverName, "CLOUDRP | NETWORK");
         elements.map.textContent = cleanText(mapName, "Неизвестная карта");
         elements.mode.textContent = cleanText(gameMode, "Z-City RP");
       };
@@ -614,7 +614,7 @@
       setupRain();
 
       if (/[?&]demo=1(?:&|$)/.test(window.location.search)) {
-        window.GameDetails("CLOUDRP | ZCITY ROLEPLAY | БЕТА-ОТКРЫТИЕ!", "", "rp_rusclaw_cloudrp", 55, "", "Z-City Roleplay", .18, "ru");
+        window.GameDetails("CLOUDRP | NETWORK", "", "rp_rusclaw_cloudrp", 55, "", "Z-City Roleplay", .18, "ru");
         window.SetFilesTotal(184);
         window.SetFilesNeeded(61);
         window.DownloadingFile("materials/cloudrp/interface/player_status.png");
